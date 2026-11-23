@@ -13,7 +13,7 @@ probability next to a game-state win-probability model on one clock, and ranks
 maps where the market moved away from what the game state said — for a human to
 investigate. **An alert is never a verdict.**
 
-**It is live: <http://148.100.79.57:38888/>**
+**It is live: <http://<server-ip>:38888/>**
 
 | Deliverable | State |
 |---|---|
@@ -28,7 +28,7 @@ investigate. **An alert is never a verdict.**
 
 | Fact | Value |
 |---|---|
-| Host | LinuxONE instance `tylerinstance1`, public IP `148.100.79.57` |
+| Host | LinuxONE instance `<instance>`, public IP `<server-ip>` |
 | Container | now **`cs2site`** (see §8). The old `notebook` container is stopped, not deleted |
 | Architecture | **s390x**, Python 3.12.15, **3 vCPUs**, 8 GB RAM, 33 GB free disk |
 | Installed | pandas 3.0.6, numpy 2.0.2, scikit-learn 1.9.0, xgboost 3.4.1, scipy, jinja2 |
@@ -179,7 +179,7 @@ being a clean demo when the rules tightened.
 
 ## 7. What to do in the first 30 minutes
 
-1. `curl http://148.100.79.57:38888/api/health` — expect `s390x`, both models,
+1. `curl http://<server-ip>:38888/api/health` — expect `s390x`, both models,
    `n_maps: 1014`.
 2. `python3 -m unittest discover -s tests` — expect 33 OK.
 3. Read spec §4.3a and §5 above. **Do not skip this.**
@@ -199,7 +199,7 @@ it. **Do not run `pkill -f jupyter`.**
 The swap runs from the host:
 
 ```bash
-ssh linux1@148.100.79.57 'bash /home/ibm-user/IBMZProject/deploy/deploy_host.sh'
+ssh <user>@<server-ip> 'bash /home/ibm-user/IBMZProject/deploy/deploy_host.sh'
 ```
 
 It commits the container (carrying the data out of the writable layer), stops
