@@ -42,7 +42,7 @@ cs2_betting_data/{tables/*.csv.gz, odds_table.csv.gz, maps_meta}
 
 | Item | Decision | Reason |
 |---|---|---|
-| Substrate | plain Docker container `notebook` on `148.100.79.57` | `kubectl` absent; K8s adds nothing visible |
+| Substrate | plain Docker container `notebook` on `<server-ip>` | `kubectl` absent; K8s adds nothing visible |
 | HTTP stack | Python stdlib `http.server` (ThreadingHTTPServer) | no Flask wheel for s390x, no PyArrow; zero dependencies beats one apt install |
 | Public port | **`0.0.0.0:38888` — the app owns it** | probe: only 22 and 38888 are reachable from the internet; 8000/8080/5000/9000 timed out |
 | Jupyter | moved to `127.0.0.1:8888`, reached via `ssh -L 8888:localhost:8888` | frees 38888; avoids unauthenticated JupyterLab, which would expose `/home/ibm-user/.git-credentials` |
@@ -189,7 +189,7 @@ Response:
 ```json
 { "p_logit": 0.43, "p_xgb": 0.39, "model": "logit-v1",
   "contributions": [ { "name": "equip_diff", "value": -1250.0, "contribution": -0.081 } ],
-  "latency_ms": 3.1, "arch": "s390x", "hostname": "tylerinstance1", "python": "3.12.15" }
+  "latency_ms": 3.1, "arch": "s390x", "hostname": "<instance>", "python": "3.12.15" }
 ```
 
 ### 3.4 `GET /api/health`
@@ -343,7 +343,7 @@ Rules: every `fetch` has a 3s timeout and falls back to the bundled JSON with a 
 | `Dockerfile` | `FROM registry.linuxone.cloud.marist.edu/l1cc/jupyterlab-image-s390x:latest`, `pip install flask joblib`, copy `server/`, `site/`, `models/`, `pipeline/`, `CMD ["deploy/start_all.sh"]` |
 | `deploy.md` | the three commands to run, the SSH tunnel command, the recovery command, and the security note (no `.git-credentials` in the image; use a build arg or a mounted key) |
 
-**Acceptance:** from a clean shell, `docker exec -d notebook /home/ibm-user/IBMZProject/deploy/start_all.sh` then `curl -s 148.100.79.57:38888/api/health` from an outside machine returns 200 within 30s.
+**Acceptance:** from a clean shell, `docker exec -d notebook /home/ibm-user/IBMZProject/deploy/start_all.sh` then `curl -s <server-ip>:38888/api/health` from an outside machine returns 200 within 30s.
 
 ---
 
@@ -394,7 +394,7 @@ The static-only path is **not cheaper** than the lean path, because the public U
 
 ## 6. Definition of done
 
-1. `curl 148.100.79.57:38888/api/health` from outside returns `"arch": "s390x"` and an `n_maps` consistent with `site/data/matches.json`.
+1. `curl <server-ip>:38888/api/health` from outside returns `"arch": "s390x"` and an `n_maps` consistent with `site/data/matches.json`.
 2. The site lists ≥ 200 maps; clicking the injected map fires exactly one alert with contributions and the verbatim disclaimer.
 3. `POST /api/score` returns a probability and a latency in milliseconds, computed at request time (proved by changing the input and seeing the output change).
 4. Killing the API leaves the page rendering from the static bundle with a visible banner.
