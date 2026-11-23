@@ -4,7 +4,7 @@ Facts this runbook is built on (all measured 17 Oct 2026, not assumed):
 
 | Fact | Value | How it was verified |
 |---|---|---|
-| Public IP | `148.100.79.57` | `curl ifconfig.me` on the host |
+| Public IP | `<server-ip>` | `curl ifconfig.me` on the host |
 | Reachable ports | **22 and 38888 only** | probed from an outside machine: 38888 → 302, 8000/8080/5000/9000 → timeout |
 | Architecture | `s390x`, Python 3.12.15 | `uname -m`, `platform.machine()` inside the container |
 | **Container network** | **`NetworkMode=host`** | `docker inspect`: `PortBindings={}` |
@@ -57,7 +57,7 @@ There is **no docker CLI inside the container** and the container cannot swap
 its own PID 1, so this step runs on the host:
 
 ```bash
-ssh linux1@148.100.79.57 'bash /home/ibm-user/IBMZProject/deploy/deploy_host.sh'
+ssh <user>@<server-ip> 'bash /home/ibm-user/IBMZProject/deploy/deploy_host.sh'
 ```
 
 It does four things, and it is safe to re-run:
@@ -71,7 +71,7 @@ It does four things, and it is safe to re-run:
 Verify from **outside** the box:
 
 ```bash
-curl -s http://148.100.79.57:38888/api/health
+curl -s http://<server-ip>:38888/api/health
 ```
 
 Must show `"arch": "s390x"`, both models loaded, and an `n_maps` equal to the
@@ -81,7 +81,7 @@ time of writing.
 ## 3. Rollback
 
 ```bash
-ssh linux1@148.100.79.57 'docker stop cs2site && docker start notebook'
+ssh <user>@<server-ip> 'docker stop cs2site && docker start notebook'
 ```
 
 The old container is never removed, so this restores Jupyter on 38888.
@@ -99,7 +99,7 @@ docker commit cs2site cs2site:snapshot
 Then reach Jupyter again on 8888 (only while `notebook` is the running one):
 
 ```bash
-ssh -L 8888:localhost:8888 linux1@148.100.79.57
+ssh -L 8888:localhost:8888 <user>@<server-ip>
 ```
 
 ## 5. Security notes
